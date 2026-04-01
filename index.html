@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luyện nghe và viết</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-sans">
+    <div class="max-w-6xl mx-auto p-6">
+        <!-- Header -->
+        <header class="bg-white shadow-lg rounded-xl p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800">Luyện Nghe & Viết</h1>
+                        <p class="text-gray-600">Nâng cao kỹ năng tiếng Anh của bạn</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">Tổng bài học</p>
+                    <p id="totalItems" class="text-2xl font-bold text-primary">0</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Trang chính -->
+        <div id="main" class="bg-white shadow-lg rounded-xl p-6 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-gray-800">Danh sách bài học</h2>
+                <div class="space-x-4">
+                    <button id="addBtn"
+                        class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center space-x-2 shadow-md">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        <span>Thêm bài mới</span>
+                    </button>
+                    <!-- Removed refresh button as it is no longer needed -->
+                </div>
+            </div>
+            <div id="list" class="space-y-4">
+                <!-- Cards sẽ được thêm vào đây -->
+            </div>
+        </div>
+
+        <!-- Modal form thêm -->
+        <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+            <div
+                class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4 transform transition-all duration-300 scale-100">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Thêm bài học mới</h2>
+                    <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <form id="addForm">
+                    <div class="mb-4">
+                        <label for="code" class="block text-sm font-medium text-gray-700 mb-2">Mã code</label>
+                        <input type="text" id="code"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200"
+                            placeholder="Nhập mã code..." required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="content" class="block text-sm font-medium text-gray-700 mb-2">Nội dung</label>
+                        <textarea id="content" rows="4"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200"
+                            placeholder="Nhập nội dung bài học..." required></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" id="cancelBtn"
+                            class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition duration-300">Hủy</button>
+                        <button type="submit"
+                            class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition duration-300">Lưu
+                            bài học</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal confirm xóa -->
+        <div id="deleteConfirmModal"
+            class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Xác nhận xóa</h3>
+                <p class="text-gray-600 mb-6">Bạn có chắc chắn muốn xóa bài học này? Hành động này không thể hoàn tác.
+                </p>
+                <div class="flex justify-end space-x-3">
+                    <button id="cancelDeleteBtn"
+                        class="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700">Hủy</button>
+                    <button id="confirmDeleteBtn"
+                        class="px-5 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white">Xóa</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trang làm bài -->
+        <div id="exercise" class="bg-white shadow-lg rounded-xl p-8 hidden">
+            <div class="mb-4 flex justify-start">
+                <button id="backBtn"
+                    class="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600 transition duration-300 flex items-center space-x-2 shadow-md">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    <span>Về danh sách</span>
+                </button>
+            </div>
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold text-gray-800">Luyện tập</h2>
+                    <span id="exerciseIndex"
+                        class="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">Bài 1</span>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-lg font-medium text-gray-700 mb-2">Mã bài: <span id="exerciseContent"
+                            class="font-bold text-primary"></span></p>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <button id="playBtn"
+                    class="bg-secondary text-white px-6 py-3 rounded-lg hover:bg-green-600 transition duration-300 flex items-center space-x-2 shadow-md mb-4">
+                    <svg id="playIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z">
+                        </path>
+                    </svg>
+                    <span>Nghe nội dung</span>
+                </button>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Viết lại nội dung bạn vừa nghe:</label>
+                <textarea id="userInput" rows="4"
+                    class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200 resize-none"
+                    placeholder="Nhập nội dung của bạn..."></textarea>
+            </div>
+
+            <div class="flex space-x-4 mb-6">
+                <button id="checkBtn"
+                    class="bg-accent text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition duration-300 flex items-center space-x-2 shadow-md">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Kiểm tra</span>
+                </button>
+                <button id="resetBtn"
+                    class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition duration-300 flex items-center space-x-2 shadow-md">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                        </path>
+                    </svg>
+                    <span>Làm lại</span>
+                </button>
+            </div>
+
+            <div id="result" class="bg-gray-50 p-4 rounded-lg mb-6 hidden">
+                <!-- Kết quả sẽ hiển thị ở đây -->
+            </div>
+
+            <div class="flex justify-between items-center mb-4">
+                <button id="prevBtn"
+                    class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition duration-300 disabled:opacity-50"
+                    disabled>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                        </path>
+                    </svg>
+                    Trước
+                </button>
+                <button id="nextBtn"
+                    class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition duration-300 disabled:opacity-50"
+                    disabled>
+                    Tiếp
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Kiểm tra localStorage
+        try {
+            localStorage.setItem('test', 'test');
+            localStorage.removeItem('test');
+        } catch (e) {
+            alert('LocalStorage không khả dụng. Dữ liệu sẽ không được lưu. Vui lòng chạy trên server hoặc trình duyệt hỗ trợ.');
+        }
+
+        let items = JSON.parse(localStorage.getItem('items')) || [];
+        console.log('Loaded items:', items);
+        let currentIndex = 0;
+        let isPlaying = false;
+        let selectedEnglishVoice = null;
+
+        function loadEnglishVoice() {
+            const voices = speechSynthesis.getVoices();
+            selectedEnglishVoice = voices.find(v => v.lang.toLowerCase().startsWith('en')) || null;
+        }
+
+        if ('speechSynthesis' in window) {
+            speechSynthesis.onvoiceschanged = loadEnglishVoice;
+            loadEnglishVoice();
+        }
+
+        function displayList() {
+            console.log('Displaying items:', items);
+            const list = document.getElementById('list');
+            const totalItems = document.getElementById('totalItems');
+            totalItems.textContent = items.length;
+            list.innerHTML = '';
+            items.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'relative w-full overflow-hidden rounded-xl';
+                card.innerHTML = `
+                    <div class="slide-content w-full bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl shadow-xl hover:shadow-2xl transition duration-300 border border-gray-300 ring-1 ring-blue-200" style="user-select:none; touch-action: pan-y;">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">${item.code}</h3>
+                                <p class="text-gray-600 text-sm line-clamp-3">${item.content}</p>
+                            </div>
+                            <span class="bg-primary text-white px-2 py-1 rounded-full text-xs font-medium ml-4">Bài ${index + 1}</span>
+                        </div>
+                        <button id="startExerciseBtn" class="w-full bg-primary text-white py-3 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center space-x-2 shadow-md">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h6v4a1 1 0 01-1 1H10a1 1 0 01-1-1v-4z"></path>
+                            </svg>
+                            <span>Làm bài</span>
+                        </button>
+                    </div>
+                    <button class="delete-btn absolute right-4 top-1/2 transform -translate-y-1/2 bg-red-500 hover:bg-red-600 text-white rounded-full p-3 shadow-md hidden z-10" aria-label="Xóa bài" style="user-select:none;">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4"></path>
+                        </svg>
+                    </button>
+                `;
+                list.appendChild(card);
+
+                const slideContent = card.querySelector('.slide-content');
+                const deleteBtn = card.querySelector('.delete-btn');
+
+                let touchStartX = 0;
+                let touchCurrentX = 0;
+                let translating = false;
+
+                slideContent.addEventListener('touchstart', (e) => {
+                    touchStartX = e.touches[0].clientX;
+                    translating = true;
+                });
+
+                slideContent.addEventListener('touchmove', (e) => {
+                    if (!translating) return;
+                    touchCurrentX = e.touches[0].clientX;
+                    const diff = touchStartX - touchCurrentX;
+                    if (diff > 0) {
+                        const translate = Math.min(diff, 90);
+                        slideContent.style.transform = `translateX(-${translate}px)`;
+                    } else {
+                        slideContent.style.transform = 'translateX(0)';
+                    }
+                });
+
+                slideContent.addEventListener('touchend', () => {
+                    translating = false;
+                    const diff = touchStartX - touchCurrentX;
+                    if (diff > 70) {
+                        slideContent.style.transform = 'translateX(-90px)';
+                        deleteBtn.classList.remove('hidden');
+                    } else {
+                        slideContent.style.transform = 'translateX(0)';
+                        deleteBtn.classList.add('hidden');
+                    }
+                });
+
+                // Mouse support for desktop swipe
+                slideContent.addEventListener('mousedown', (e) => {
+                    touchStartX = e.clientX;
+                    translating = true;
+                });
+
+                window.addEventListener('mousemove', (e) => {
+                    if (!translating) return;
+                    touchCurrentX = e.clientX;
+                    const diff = touchStartX - touchCurrentX;
+                    if (diff > 0) {
+                        const translate = Math.min(diff, 90);
+                        slideContent.style.transform = `translateX(-${translate}px)`;
+                    } else {
+                        slideContent.style.transform = 'translateX(0)';
+                    }
+                });
+
+                window.addEventListener('mouseup', () => {
+                    if (!translating) return;
+                    translating = false;
+                    const diff = touchStartX - touchCurrentX;
+                    if (diff > 70) {
+                        slideContent.style.transform = 'translateX(-90px)';
+                        deleteBtn.classList.remove('hidden');
+                    } else {
+                        slideContent.style.transform = 'translateX(0)';
+                        deleteBtn.classList.add('hidden');
+                    }
+                });
+
+                deleteBtn.addEventListener('click', () => {
+                    pendingDeleteIndex = index;
+                    showDeleteConfirm();
+                });
+
+                card.querySelector('#startExerciseBtn').addEventListener('click', () => startExercise(index));
+            });
+        }
+
+        let pendingDeleteIndex = -1;
+
+        function showDeleteConfirm() {
+            document.getElementById('deleteConfirmModal').classList.remove('hidden');
+            document.getElementById('deleteConfirmModal').classList.add('flex');
+        }
+
+        function hideDeleteConfirm() {
+            document.getElementById('deleteConfirmModal').classList.add('hidden');
+            document.getElementById('deleteConfirmModal').classList.remove('flex');
+            pendingDeleteIndex = -1;
+        }
+
+        function confirmDelete() {
+            if (pendingDeleteIndex >= 0 && pendingDeleteIndex < items.length) {
+                items.splice(pendingDeleteIndex, 1);
+                localStorage.setItem('items', JSON.stringify(items));
+                displayList();
+                backToList();
+                hideDeleteConfirm();
+            }
+        }
+
+        function showModal() {
+            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('modal').classList.add('flex');
+        }
+
+        function hideModal() {
+            document.getElementById('modal').classList.add('hidden');
+            document.getElementById('modal').classList.remove('flex');
+            document.getElementById('code').value = '';
+            document.getElementById('content').value = '';
+        }
+
+        function addItem(event) {
+            event.preventDefault();
+            const code = document.getElementById('code').value.trim();
+            const content = document.getElementById('content').value.trim();
+            if (code && content) {
+                const exists = items.some(item => item.code.toLowerCase() === code.toLowerCase());
+                if (exists) {
+                    alert('Mã code đã tồn tại. Vui lòng nhập mã khác.');
+                    return;
+                }
+                items.push({ code, content });
+                localStorage.setItem('items', JSON.stringify(items));
+                console.log('Saved items to localStorage:', localStorage.getItem('items'));
+                displayList();
+                hideModal();
+            } else {
+                alert('Vui lòng nhập đầy đủ mã code và nội dung.');
+            }
+        }
+
+        function startExercise(index) {
+            currentIndex = index;
+            const item = items[index];
+            document.getElementById('exerciseContent').textContent = item.code;
+            const indexEl = document.getElementById('exerciseIndex');
+            if (indexEl) {
+                indexEl.textContent = `Bài ${index + 1}`;
+            }
+            document.getElementById('main').classList.add('hidden');
+            document.getElementById('exercise').classList.remove('hidden');
+            document.getElementById('userInput').value = '';
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('result').innerHTML = '';
+            updateNavButtons();
+        }
+
+        function speak() {
+            if ('speechSynthesis' in window) {
+                if (isPlaying) {
+                    speechSynthesis.cancel();
+                    isPlaying = false;
+                    updatePlayIcon();
+                } else {
+                    const utterance = new SpeechSynthesisUtterance(items[currentIndex].content);
+                    if (!selectedEnglishVoice) {
+                        loadEnglishVoice();
+                    }
+                    if (selectedEnglishVoice) {
+                        utterance.voice = selectedEnglishVoice;
+                    }
+                    utterance.rate = 1;
+                    utterance.pitch = 1;
+                    utterance.onend = () => {
+                        isPlaying = false;
+                        updatePlayIcon();
+                    };
+                    speechSynthesis.speak(utterance);
+                    isPlaying = true;
+                    updatePlayIcon();
+                }
+            } else {
+                alert('Trình duyệt không hỗ trợ phát âm.');
+            }
+        }
+
+        function updatePlayIcon() {
+            const icon = document.getElementById('playIcon');
+            if (isPlaying) {
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"></path>';
+            } else {
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>';
+            }
+        }
+
+        function checkAnswer() {
+            const userText = document.getElementById('userInput').value.trim();
+            const original = items[currentIndex].content.trim();
+            const result = document.getElementById('result');
+
+            const userWords = userText.split(/\s+/);
+            const originalWords = original.split(/\s+/);
+
+            let correctWords = 0;
+            let userColored = '';
+            userWords.forEach((word, i) => {
+                const isCorrect = originalWords[i] && word === originalWords[i];
+                if (isCorrect) correctWords++;
+                const colorClass = isCorrect ? 'text-green-600 font-semibold' : 'text-red-600';
+                userColored += `<span class="${colorClass}">${word}</span> `;
+            });
+
+            const score = originalWords.length > 0 ? Math.round((correctWords / originalWords.length) * 100) : 0;
+
+            result.innerHTML = `
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Kết quả</h3>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <p class="mb-2"><strong>Nội dung đúng:</strong> <span class="text-gray-700">${original}</span></p>
+                        <p class="mb-2"><strong>Bạn viết:</strong> ${userColored.trim()}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Độ chính xác: ${correctWords}/${originalWords.length} từ</span>
+                            <span class="bg-accent text-white px-3 py-1 rounded-full text-sm font-bold">${score}/100</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            result.classList.remove('hidden');
+
+            // Cuộn mượt xuống phần kết quả khi kiểm tra xong
+            result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function resetExercise() {
+            document.getElementById('userInput').value = '';
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('result').innerHTML = '';
+            if (isPlaying) {
+                speechSynthesis.cancel();
+                isPlaying = false;
+                updatePlayIcon();
+            }
+            // Phát âm lại từ đầu
+            speak();
+        }
+
+        function nextItem() {
+            if (currentIndex < items.length - 1) {
+                startExercise(currentIndex + 1);
+            }
+        }
+
+        function prevItem() {
+            if (currentIndex > 0) {
+                startExercise(currentIndex - 1);
+            }
+        }
+
+        function backToList() {
+            document.getElementById('exercise').classList.add('hidden');
+            document.getElementById('main').classList.remove('hidden');
+            // Hủy trạng thái play nếu đang chạy
+            if (isPlaying) {
+                speechSynthesis.cancel();
+                isPlaying = false;
+                updatePlayIcon();
+            }
+        }
+
+        function updateNavButtons() {
+            document.getElementById('prevBtn').disabled = currentIndex === 0;
+            document.getElementById('nextBtn').disabled = currentIndex === items.length - 1;
+        }
+
+        displayList();
+
+        document.getElementById('addBtn').addEventListener('click', showModal);
+        document.getElementById('closeModal').addEventListener('click', hideModal);
+        document.getElementById('cancelBtn').addEventListener('click', hideModal);
+        document.getElementById('addForm').addEventListener('submit', addItem);
+        document.getElementById('playBtn').addEventListener('click', speak);
+        document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+        document.getElementById('resetBtn').addEventListener('click', resetExercise);
+        document.getElementById('backBtn').addEventListener('click', backToList);
+        document.getElementById('nextBtn').addEventListener('click', nextItem);
+        document.getElementById('prevBtn').addEventListener('click', prevItem);
+        document.getElementById('cancelDeleteBtn').addEventListener('click', hideDeleteConfirm);
+        document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
+    </script>
+</body>
+
+</html>
