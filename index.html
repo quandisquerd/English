@@ -243,17 +243,22 @@
             const totalItems = document.getElementById('totalItems');
             totalItems.textContent = items.length;
             list.innerHTML = '';
-            items.forEach((item, index) => {
+            items.slice(0, 10).forEach((item, index) => {
                 const card = document.createElement('div');
                 card.className = 'relative w-full overflow-hidden rounded-xl';
                 card.innerHTML = `
-                    <div class="slide-content w-full bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl shadow-xl hover:shadow-2xl transition duration-300 border border-gray-300 ring-1 ring-blue-200" style="user-select:none; touch-action: pan-y;">
+                    <div class="slide-content w-full bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl shadow-xl hover:shadow-2xl transition duration-300 border border-gray-300 ring-1 ring-blue-200 relative" style="user-select:none; touch-action: pan-y;">
                         <div class="flex items-start justify-between mb-4">
                             <div class="flex-1">
                                 <h3 class="text-lg font-semibold text-gray-800 mb-2">${item.code}</h3>
                                 <p class="text-gray-600 text-sm line-clamp-3">${item.content}</p>
                             </div>
-                            <span class="bg-primary text-white px-2 py-1 rounded-full text-xs font-medium ml-4">Bài ${index + 1}</span>
+                            <div class="flex flex-col items-end space-y-1">
+                                <span class="${item.score !== undefined ? 'bg-green-500' : 'bg-gray-400'} text-white px-2 py-1 rounded-full text-xs font-medium">
+                                    ${item.score !== undefined ? item.score + '/100' : 'Chưa làm'}
+                                </span>
+                                <span class="bg-primary text-white px-2 py-1 rounded-full text-xs font-medium">Bài ${index + 1}</span>
+                            </div>
                         </div>
                         <button id="startExerciseBtn" class="w-full bg-primary text-white py-3 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center space-x-2 shadow-md">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -474,6 +479,10 @@
 
             const score = originalWords.length > 0 ? Math.round((correctWords / originalWords.length) * 100) : 0;
 
+            // Lưu điểm vào item
+            items[currentIndex].score = score;
+            localStorage.setItem('items', JSON.stringify(items));
+
             result.innerHTML = `
                 <div class="mb-4">
                     <h3 class="text-lg font-semibold text-gray-800 mb-2">Kết quả</h3>
@@ -527,6 +536,8 @@
                 isPlaying = false;
                 updatePlayIcon();
             }
+            // Cập nhật danh sách với điểm mới
+            displayList();
         }
 
         function updateNavButtons() {
