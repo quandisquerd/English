@@ -42,9 +42,22 @@
                         <p class="text-gray-600">Nâng cao kỹ năng tiếng Anh của bạn</p>
                     </div>
                 </div>
-                <div class="text-right">
-                    <p class="text-sm text-gray-500">Tổng bài học</p>
-                    <p id="totalItems" class="text-2xl font-bold text-primary">0</p>
+                <div class="flex items-center space-x-6">
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500">Tổng bài học</p>
+                        <p id="totalItems" class="text-2xl font-bold text-primary">0</p>
+                    </div>
+                    <button id="reviewBtn"
+                        class="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300 flex items-center space-x-2 shadow-md">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                            </path>
+                        </svg>
+                        <span>Cần ôn tập</span>
+                        <span id="reviewCount"
+                            class="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">0</span>
+                    </button>
                 </div>
             </div>
         </header>
@@ -123,6 +136,66 @@
             </div>
         </div>
 
+        <!-- Modal danh sách ôn tập -->
+        <div id="reviewModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-xl max-h-96 overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-semibold text-gray-800">Danh sách ôn tập</h3>
+                    <button id="closeReviewBtn" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="space-y-6">
+                    <!-- Cần ôn tập -->
+                    <div>
+                        <h4
+                            class="text-lg font-semibold text-gray-800 mb-3 text-red-600 flex items-center justify-between">
+                            <span>📚 Cần ôn tập</span>
+                            <span id="needReviewCount"
+                                class="bg-red-500 text-white px-2 py-1 rounded-full text-sm font-bold">0</span>
+                        </h4>
+                        <div id="needReviewList" class="space-y-3">
+                            <!-- Danh sách cần ôn tập -->
+                        </div>
+                    </div>
+                    <!-- Đã ôn tập hôm nay -->
+                    <div>
+                        <h4
+                            class="text-lg font-semibold text-gray-800 mb-3 text-green-600 flex items-center justify-between">
+                            <span>✅ Đã ôn tập hôm nay</span>
+                            <span id="reviewedTodayCount"
+                                class="bg-green-500 text-white px-2 py-1 rounded-full text-sm font-bold">0</span>
+                        </h4>
+                        <div id="reviewedTodayList" class="space-y-3">
+                            <!-- Danh sách đã ôn tập hôm nay -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal xem chi tiết lịch sử -->
+        <div id="historyDetailModal"
+            class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-semibold text-gray-800">Chi tiết lần làm</h3>
+                    <button id="closeHistoryDetailBtn" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="historyDetailContent" class="space-y-4">
+                    <!-- Chi tiết sẽ được thêm vào đây -->
+                </div>
+            </div>
+        </div>
+
         <!-- Trang làm bài -->
         <div id="exercise" class="bg-white shadow-lg rounded-xl p-8 hidden">
             <div class="mb-4 flex justify-start">
@@ -190,6 +263,13 @@
                 <!-- Kết quả sẽ hiển thị ở đây -->
             </div>
 
+            <div id="historySection" class="mb-6 hidden">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Lịch sử làm bài</h3>
+                <div id="historyList" class="space-y-3">
+                    <!-- Lịch sử sẽ được thêm vào đây -->
+                </div>
+            </div>
+
             <div class="flex justify-between items-center mb-4">
                 <button id="prevBtn"
                     class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition duration-300 disabled:opacity-50"
@@ -242,6 +322,7 @@
             const list = document.getElementById('list');
             const totalItems = document.getElementById('totalItems');
             totalItems.textContent = items.length;
+            updateReviewCount();
             list.innerHTML = '';
             items.slice(0, 10).forEach((item, index) => {
                 const card = document.createElement('div');
@@ -419,6 +500,8 @@
             document.getElementById('userInput').value = '';
             document.getElementById('result').classList.add('hidden');
             document.getElementById('result').innerHTML = '';
+            // Hiển thị lịch sử nếu có
+            displayHistory();
             updateNavButtons();
         }
 
@@ -479,8 +562,21 @@
 
             const score = originalWords.length > 0 ? Math.round((correctWords / originalWords.length) * 100) : 0;
 
-            // Lưu điểm vào item
+            // Lưu điểm và thời gian vào item
             items[currentIndex].score = score;
+            items[currentIndex].lastReviewTime = new Date().toLocaleString('vi-VN');
+
+            // Lưu vào lịch sử
+            if (!items[currentIndex].history) {
+                items[currentIndex].history = [];
+            }
+            items[currentIndex].history.push({
+                score: score,
+                userContent: userText,
+                originalContent: original,
+                timestamp: new Date().toLocaleString('vi-VN')
+            });
+
             localStorage.setItem('items', JSON.stringify(items));
 
             result.innerHTML = `
@@ -498,7 +594,10 @@
             `;
             result.classList.remove('hidden');
 
-            // Cuộn mượt xuống phần kết quả khi kiểm tra xong
+            // Hiển thị lịch sử
+            displayHistory();
+
+            // Cuộl mượt xuống phần kết quả khi kiểm tra xong
             result.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
@@ -506,6 +605,7 @@
             document.getElementById('userInput').value = '';
             document.getElementById('result').classList.add('hidden');
             document.getElementById('result').innerHTML = '';
+            document.getElementById('historySection').classList.add('hidden');
             if (isPlaying) {
                 speechSynthesis.cancel();
                 isPlaying = false;
@@ -513,6 +613,79 @@
             }
             // Phát âm lại từ đầu
             speak();
+        }
+
+        function displayHistory() {
+            const item = items[currentIndex];
+            if (!item.history || item.history.length === 0) {
+                document.getElementById('historySection').classList.add('hidden');
+                return;
+            }
+
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+
+            // Sắp xếp theo thứ tự mới nhất trước
+            const sortedHistory = [...item.history].reverse();
+
+            sortedHistory.forEach((entry, index) => {
+                const div = document.createElement('div');
+                div.className = 'bg-white p-4 rounded-lg border border-gray-300 flex justify-between items-center';
+                const attemptNumber = item.history.length - index;
+                div.innerHTML = `
+                    <div>
+                        <div class="flex items-center space-x-3 mb-2">
+                            <span class="font-semibold text-gray-800">Lần ${attemptNumber}</span>
+                            <span class="bg-${entry.score >= 80 ? 'green' : entry.score >= 60 ? 'yellow' : 'red'}-500 text-white px-2 py-1 rounded-full text-xs font-bold">${entry.score}/100</span>
+                        </div>
+                        <p class="text-xs text-gray-500">${entry.timestamp}</p>
+                    </div>
+                    <button onclick="showHistoryDetail(${currentIndex}, ${item.history.length - index - 1})" class="text-primary hover:text-blue-600 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </button>
+                `;
+                historyList.appendChild(div);
+            });
+
+            document.getElementById('historySection').classList.remove('hidden');
+        }
+
+        function showHistoryDetail(itemIndex, historyIndex) {
+            const item = items[itemIndex];
+            const entry = item.history[historyIndex];
+            const content = document.getElementById('historyDetailContent');
+
+            content.innerHTML = `
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-700"><strong>Nội dung đúng:</strong></p>
+                    <p class="text-gray-800 mt-1">${entry.originalContent}</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-700"><strong>Bạn viết:</strong></p>
+                    <p class="text-gray-800 mt-1">${entry.userContent}</p>
+                </div>
+                <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
+                    <div>
+                        <p class="text-sm text-gray-600">Điểm:</p>
+                        <p class="text-2xl font-bold text-primary">${entry.score}/100</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-600">Thời gian:</p>
+                        <p class="text-sm text-gray-800 font-medium">${entry.timestamp}</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('historyDetailModal').classList.remove('hidden');
+            document.getElementById('historyDetailModal').classList.add('flex');
+        }
+
+        function hideHistoryDetail() {
+            document.getElementById('historyDetailModal').classList.add('hidden');
+            document.getElementById('historyDetailModal').classList.remove('flex');
         }
 
         function nextItem() {
@@ -540,6 +713,135 @@
             displayList();
         }
 
+        function showReviewModal() {
+            const today = new Date();
+            const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+            const needReviewItems = items.filter(item => {
+                // Bài đã có điểm nhưng không ôn tập hôm nay
+                if (item.score === undefined || item.score === null) return false;
+                if (!item.lastReviewTime) return true; // Chưa ôn tập bao giờ
+
+                // Parse ngày từ lastReviewTime (format: "09:40:29 2/4/2026")
+                try {
+                    const parts = item.lastReviewTime.split(' ');
+                    const datePart = parts[parts.length - 1]; // Lấy phần cuối là ngày "2/4/2026"
+                    const [day, month, year] = datePart.split('/').map(Number);
+                    const reviewDate = new Date(year, month - 1, day);
+
+                    // So sánh chỉ phần ngày
+                    return reviewDate.getTime() !== todayDateOnly.getTime();
+                } catch (e) {
+                    console.error('Error parsing date for', item.code, e);
+                    return true;
+                }
+            });
+
+            const reviewedTodayItems = items.filter(item => {
+                // Bài ôn tập hôm nay
+                if (item.score === undefined || item.score === null) return false;
+                if (!item.lastReviewTime) return false;
+
+                try {
+                    const parts = item.lastReviewTime.split(' ');
+                    const datePart = parts[parts.length - 1]; // "2/4/2026"
+                    const [day, month, year] = datePart.split('/').map(Number);
+                    const reviewDate = new Date(year, month - 1, day);
+
+                    console.log('ReviewedToday check:', item.code, 'reviewDate:', reviewDate, 'today:', todayDateOnly, 'equal:', reviewDate.getTime() === todayDateOnly.getTime());
+
+                    return reviewDate.getTime() === todayDateOnly.getTime();
+                } catch (e) {
+                    console.error('Error parsing date for', item.code, e);
+                    return false;
+                }
+            }); const needReviewList = document.getElementById('needReviewList');
+            const reviewedTodayList = document.getElementById('reviewedTodayList');
+            needReviewList.innerHTML = '';
+            reviewedTodayList.innerHTML = '';
+
+            // Cập nhật badge đếm
+            document.getElementById('needReviewCount').textContent = needReviewItems.length;
+            document.getElementById('reviewedTodayCount').textContent = reviewedTodayItems.length;
+
+            if (needReviewItems.length === 0) {
+                needReviewList.innerHTML = '<p class="text-gray-600 text-center py-4">Không có bài nào cần ôn tập!</p>';
+            } else {
+                needReviewItems.forEach((item) => {
+                    const div = document.createElement('div');
+                    div.className = 'bg-red-50 p-4 rounded-lg border border-red-200 flex justify-between items-center';
+                    div.innerHTML = `
+                        <div>
+                            <h4 class="font-semibold text-gray-800">${item.code}</h4>
+                            <p class="text-sm text-gray-600">${item.content.substring(0, 50)}...</p>
+                            <p class="text-xs text-gray-500 mt-2">Lần cuối ôn: ${item.lastReviewTime || 'Chưa ôn tập'} | Điểm: ${item.score}/100</p>
+                        </div>
+                        <button onclick="startExerciseFromReview(${items.indexOf(item)})" class="bg-primary text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition">
+                            Làm bài
+                        </button>
+                    `;
+                    needReviewList.appendChild(div);
+                });
+            }
+
+            if (reviewedTodayItems.length === 0) {
+                reviewedTodayList.innerHTML = '<p class="text-gray-600 text-center py-4">Chưa có bài nào ôn tập hôm nay</p>';
+            } else {
+                reviewedTodayItems.forEach((item) => {
+                    const div = document.createElement('div');
+                    div.className = 'bg-green-50 p-4 rounded-lg border border-green-200 flex justify-between items-center';
+                    div.innerHTML = `
+                        <div>
+                            <h4 class="font-semibold text-gray-800">${item.code}</h4>
+                            <p class="text-sm text-gray-600">${item.content.substring(0, 50)}...</p>
+                            <p class="text-xs text-gray-500 mt-2">Ôn tập: ${item.lastReviewTime} | Điểm: ${item.score}/100</p>
+                        </div>
+                        <button onclick="startExerciseFromReview(${items.indexOf(item)})" class="bg-secondary text-white px-3 py-2 rounded-lg hover:bg-green-600 transition">
+                            Làm lại
+                        </button>
+                    `;
+                    reviewedTodayList.appendChild(div);
+                });
+            }
+
+            document.getElementById('reviewModal').classList.remove('hidden');
+            document.getElementById('reviewModal').classList.add('flex');
+        }
+
+        function hideReviewModal() {
+            document.getElementById('reviewModal').classList.add('hidden');
+            document.getElementById('reviewModal').classList.remove('flex');
+        }
+
+        function startExerciseFromReview(index) {
+            hideReviewModal();
+            startExercise(index);
+        }
+
+        function updateReviewCount() {
+            const today = new Date();
+            const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+            const needReviewCount = items.filter(item => {
+                // Chỉ đếm bài cần ôn tập (có điểm nhưng không phải hôm nay)
+                if (item.score === undefined || item.score === null) return false;
+                if (!item.lastReviewTime) return true; // Chưa ôn tập bao giờ
+
+                try {
+                    const parts = item.lastReviewTime.split(' ');
+                    const datePart = parts[parts.length - 1];
+                    const [day, month, year] = datePart.split('/').map(Number);
+                    const reviewDate = new Date(year, month - 1, day);
+
+                    // Nếu không phải hôm nay thì cần ôn tập
+                    return reviewDate.getTime() !== todayDateOnly.getTime();
+                } catch (e) {
+                    return true;
+                }
+            }).length;
+            document.getElementById('reviewCount').textContent = needReviewCount;
+        }
+
         function updateNavButtons() {
             document.getElementById('prevBtn').disabled = currentIndex === 0;
             document.getElementById('nextBtn').disabled = currentIndex === items.length - 1;
@@ -559,6 +861,9 @@
         document.getElementById('prevBtn').addEventListener('click', prevItem);
         document.getElementById('cancelDeleteBtn').addEventListener('click', hideDeleteConfirm);
         document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
+        document.getElementById('reviewBtn').addEventListener('click', showReviewModal);
+        document.getElementById('closeReviewBtn').addEventListener('click', hideReviewModal);
+        document.getElementById('closeHistoryDetailBtn').addEventListener('click', hideHistoryDetail);
     </script>
 </body>
 
