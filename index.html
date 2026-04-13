@@ -241,32 +241,27 @@
 
             <div id="alwaysAnswerSection" class="bg-white p-4 rounded-lg mb-6 border border-gray-200">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <p class="font-semibold text-gray-800 mb-1">Nội dung đúng:</p>
-                    <button id="toggleAnswerBtn" type="button"
-                        class="inline-flex items-center justify-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200">
-                        Xem đáp án
-                    </button>
+                    <p class="font-semibold text-gray-800 mb-1">Nội dung đúng</p>
                 </div>
                 <div id="alwaysAnswerText" class="text-gray-700 break-words whitespace-pre-wrap hidden mt-4"></div>
             </div>
 
             <div class="flex space-x-4 mb-6">
-                <button id="checkBtn"
-                    class="bg-accent text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition duration-300 flex items-center space-x-2 shadow-md">
+                <button id="checkBtn" type="button" disabled
+                    class="bg-accent text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition duration-300 flex items-center space-x-2 shadow-md disabled:opacity-50">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <span>Kiểm tra</span>
                 </button>
-                <button id="resetBtn"
-                    class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition duration-300 flex items-center space-x-2 shadow-md">
+                <button id="revealAnswerBtn" type="button"
+                    class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition duration-300 flex items-center space-x-2 shadow-md">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                        </path>
+                            d="M15 12H9m6 0a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
-                    <span>Làm lại</span>
+                    <span>Xem đáp án</span>
                 </button>
             </div>
 
@@ -276,26 +271,27 @@
 
             <div id="historySection" class="mb-6 hidden">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Lịch sử làm bài</h3>
-                <div id="historyList" class="space-y-3">
+                <div id="historyList" class="space-y-3 overflow-y-auto pr-2 sm:max-h-80 max-h-52">
                     <!-- Lịch sử sẽ được thêm vào đây -->
                 </div>
             </div>
 
-            <div class="flex justify-between items-center mb-4">
+            <div
+                class="flex justify-between items-center mb-4 sm:relative fixed bottom-0 left-0 right-0 bg-white p-3 border-t border-gray-200 z-10">
                 <button id="prevBtn"
-                    class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition duration-300 disabled:opacity-50"
+                    class="bg-gradient-to-r from-green-400 to-green-500 text-white px-4 py-2 rounded-xl hover:from-green-500 hover:to-green-600 transition duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
                         </path>
                     </svg>
                     Trước
                 </button>
                 <button id="nextBtn"
-                    class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition duration-300 disabled:opacity-50"
+                    class="bg-gradient-to-r from-blue-400 to-blue-500 text-white px-4 py-2 rounded-xl hover:from-blue-500 hover:to-blue-600 transition duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled>
                     Tiếp
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </button>
@@ -510,7 +506,7 @@
             document.getElementById('exerciseContent').textContent = item.code;
             document.getElementById('alwaysAnswerText').textContent = item.content;
             document.getElementById('alwaysAnswerText').classList.add('hidden');
-            document.getElementById('toggleAnswerBtn').textContent = 'Xem đáp án';
+            document.getElementById('revealAnswerBtn').textContent = 'Xem đáp án';
             const indexEl = document.getElementById('exerciseIndex');
             if (indexEl) {
                 indexEl.textContent = `Bài ${index + 1}`;
@@ -518,6 +514,7 @@
             document.getElementById('main').classList.add('hidden');
             document.getElementById('exercise').classList.remove('hidden');
             document.getElementById('userInput').value = '';
+            updateCheckButtonState();
             document.getElementById('result').classList.add('hidden');
             document.getElementById('result').innerHTML = '';
             // Hiển thị lịch sử nếu có
@@ -567,9 +564,18 @@
             }
         }
 
+        function updateCheckButtonState() {
+            const checkBtn = document.getElementById('checkBtn');
+            const userInput = document.getElementById('userInput');
+            if (!checkBtn || !userInput) return;
+            checkBtn.disabled = userInput.value.trim().length === 0;
+        }
+
         function checkAnswer() {
             const userText = document.getElementById('userInput').value.trim();
             const original = items[currentIndex].content.trim();
+            document.getElementById('alwaysAnswerText').classList.add('hidden');
+            document.getElementById('revealAnswerBtn').textContent = 'Xem đáp án';
             const result = document.getElementById('result');
 
             const userWords = userText.split(/\s+/);
@@ -620,6 +626,9 @@
             `;
             result.classList.remove('hidden');
 
+            document.getElementById('userInput').value = '';
+            updateCheckButtonState();
+
             // Hiển thị lịch sử
             displayHistory();
 
@@ -627,26 +636,9 @@
             result.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
-        function resetExercise() {
-            document.getElementById('userInput').value = '';
-            document.getElementById('result').classList.add('hidden');
-            document.getElementById('result').innerHTML = '';
-            document.getElementById('alwaysAnswerText').textContent = '';
-            document.getElementById('alwaysAnswerText').classList.add('hidden');
-            document.getElementById('toggleAnswerBtn').textContent = 'Xem đáp án';
-            document.getElementById('historySection').classList.add('hidden');
-            if (isPlaying) {
-                speechSynthesis.cancel();
-                isPlaying = false;
-                updatePlayIcon();
-            }
-            // Phát âm lại từ đầu
-            speak();
-        }
-
         function toggleAnswer() {
             const answerText = document.getElementById('alwaysAnswerText');
-            const toggleBtn = document.getElementById('toggleAnswerBtn');
+            const toggleBtn = document.getElementById('revealAnswerBtn');
             if (!answerText || !toggleBtn) return;
             const isHidden = answerText.classList.toggle('hidden');
             toggleBtn.textContent = isHidden ? 'Xem đáp án' : 'Ẩn đáp án';
@@ -895,8 +887,8 @@
         document.getElementById('addForm').addEventListener('submit', addItem);
         document.getElementById('playBtn').addEventListener('click', speak);
         document.getElementById('checkBtn').addEventListener('click', checkAnswer);
-        document.getElementById('resetBtn').addEventListener('click', resetExercise);
-        document.getElementById('toggleAnswerBtn').addEventListener('click', toggleAnswer);
+        document.getElementById('userInput').addEventListener('input', updateCheckButtonState);
+        document.getElementById('revealAnswerBtn').addEventListener('click', toggleAnswer);
         document.getElementById('backBtn').addEventListener('click', backToList);
         document.getElementById('nextBtn').addEventListener('click', nextItem);
         document.getElementById('prevBtn').addEventListener('click', prevItem);
