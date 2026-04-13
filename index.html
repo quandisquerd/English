@@ -29,7 +29,7 @@
     <div class="max-w-6xl mx-auto p-6">
         <!-- Header -->
         <header class="bg-white shadow-lg rounded-xl p-6 mb-8">
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div class="flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center space-x-4">
                     <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,8 +42,7 @@
                         <p class="text-gray-600">Nâng cao kỹ năng tiếng Anh của bạn</p>
                     </div>
                 </div>
-                <div
-                    class="mt-4 lg:mt-0 flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-6">
+                <div class="flex flex-wrap items-center gap-3">
                     <div class="text-right">
                         <p class="text-sm text-gray-500">Tổng bài học</p>
                         <p id="totalItems" class="text-2xl font-bold text-primary">0</p>
@@ -238,6 +237,17 @@
                 <textarea id="userInput" rows="4"
                     class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200 resize-none"
                     placeholder="Nhập nội dung của bạn..."></textarea>
+            </div>
+
+            <div id="alwaysAnswerSection" class="bg-white p-4 rounded-lg mb-6 border border-gray-200">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <p class="font-semibold text-gray-800 mb-1">Nội dung đúng:</p>
+                    <button id="toggleAnswerBtn" type="button"
+                        class="inline-flex items-center justify-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200">
+                        Xem đáp án
+                    </button>
+                </div>
+                <div id="alwaysAnswerText" class="text-gray-700 break-words whitespace-pre-wrap hidden mt-4"></div>
             </div>
 
             <div class="flex space-x-4 mb-6">
@@ -498,6 +508,9 @@
             currentIndex = index;
             const item = items[index];
             document.getElementById('exerciseContent').textContent = item.code;
+            document.getElementById('alwaysAnswerText').textContent = item.content;
+            document.getElementById('alwaysAnswerText').classList.add('hidden');
+            document.getElementById('toggleAnswerBtn').textContent = 'Xem đáp án';
             const indexEl = document.getElementById('exerciseIndex');
             if (indexEl) {
                 indexEl.textContent = `Bài ${index + 1}`;
@@ -594,8 +607,10 @@
                 <div class="mb-4">
                     <h3 class="text-lg font-semibold text-gray-800 mb-2">Kết quả</h3>
                     <div class="bg-white p-4 rounded-lg border">
-                        <p class="mb-2"><strong>Nội dung đúng:</strong> <span class="text-gray-700">${original}</span></p>
-                        <p class="mb-2"><strong>Bạn viết:</strong> ${userColored.trim()}</p>
+                        <p class="text-gray-700 mb-1 break-words">
+                            <span class="font-semibold text-gray-800">Nội dung đúng:</span> ${original}
+                        </p>
+                        <p class="mb-2 mt-1"><strong>Bạn viết:</strong> ${userColored.trim()}</p>
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">Độ chính xác: ${correctWords}/${originalWords.length} từ</span>
                             <span class="bg-accent text-white px-3 py-1 rounded-full text-sm font-bold">${score}/100</span>
@@ -616,6 +631,9 @@
             document.getElementById('userInput').value = '';
             document.getElementById('result').classList.add('hidden');
             document.getElementById('result').innerHTML = '';
+            document.getElementById('alwaysAnswerText').textContent = '';
+            document.getElementById('alwaysAnswerText').classList.add('hidden');
+            document.getElementById('toggleAnswerBtn').textContent = 'Xem đáp án';
             document.getElementById('historySection').classList.add('hidden');
             if (isPlaying) {
                 speechSynthesis.cancel();
@@ -625,6 +643,16 @@
             // Phát âm lại từ đầu
             speak();
         }
+
+        function toggleAnswer() {
+            const answerText = document.getElementById('alwaysAnswerText');
+            const toggleBtn = document.getElementById('toggleAnswerBtn');
+            if (!answerText || !toggleBtn) return;
+            const isHidden = answerText.classList.toggle('hidden');
+            toggleBtn.textContent = isHidden ? 'Xem đáp án' : 'Ẩn đáp án';
+        }
+
+
 
         function displayHistory() {
             const item = items[currentIndex];
@@ -868,6 +896,7 @@
         document.getElementById('playBtn').addEventListener('click', speak);
         document.getElementById('checkBtn').addEventListener('click', checkAnswer);
         document.getElementById('resetBtn').addEventListener('click', resetExercise);
+        document.getElementById('toggleAnswerBtn').addEventListener('click', toggleAnswer);
         document.getElementById('backBtn').addEventListener('click', backToList);
         document.getElementById('nextBtn').addEventListener('click', nextItem);
         document.getElementById('prevBtn').addEventListener('click', prevItem);
