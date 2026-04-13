@@ -29,7 +29,7 @@
     <div class="max-w-6xl mx-auto p-6">
         <!-- Header -->
         <header class="bg-white shadow-lg rounded-xl p-6 mb-8">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 <div class="flex items-center space-x-4">
                     <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,7 +42,8 @@
                         <p class="text-gray-600">Nâng cao kỹ năng tiếng Anh của bạn</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-6">
+                <div
+                    class="mt-4 lg:mt-0 flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-6">
                     <div class="text-right">
                         <p class="text-sm text-gray-500">Tổng bài học</p>
                         <p id="totalItems" class="text-2xl font-bold text-primary">0</p>
@@ -64,9 +65,9 @@
 
         <!-- Trang chính -->
         <div id="main" class="bg-white shadow-lg rounded-xl p-6 mb-8">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
                 <h2 class="text-2xl font-semibold text-gray-800">Danh sách bài học</h2>
-                <div class="space-x-4">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                     <button id="addBtn"
                         class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center space-x-2 shadow-md">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -309,12 +310,18 @@
 
         function loadEnglishVoice() {
             const voices = speechSynthesis.getVoices();
-            selectedEnglishVoice = voices.find(v => v.lang.toLowerCase().startsWith('en')) || null;
+            if (!voices || voices.length === 0) return;
+            selectedEnglishVoice = voices.find(v => v.lang.toLowerCase().startsWith('en'))
+                || voices.find(v => v.lang.toLowerCase().includes('english'))
+                || voices.find(v => v.name.toLowerCase().includes('english'))
+                || voices.find(v => v.lang.toLowerCase().includes('en'))
+                || null;
         }
 
         if ('speechSynthesis' in window) {
             speechSynthesis.onvoiceschanged = loadEnglishVoice;
             loadEnglishVoice();
+            setTimeout(loadEnglishVoice, 300);
         }
 
         function displayList() {
@@ -329,8 +336,8 @@
                 card.className = 'relative w-full overflow-hidden rounded-xl';
                 card.innerHTML = `
                     <div class="slide-content w-full bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl shadow-xl hover:shadow-2xl transition duration-300 border border-gray-300 ring-1 ring-blue-200 relative" style="user-select:none; touch-action: pan-y;">
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="flex-1">
+                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-4">
+                            <div class="flex-1 min-w-0">
                                 <h3 class="text-lg font-semibold text-gray-800 mb-2">${item.code}</h3>
                                 <p class="text-gray-600 text-sm line-clamp-3">${item.content}</p>
                             </div>
@@ -518,6 +525,10 @@
                     }
                     if (selectedEnglishVoice) {
                         utterance.voice = selectedEnglishVoice;
+                        utterance.lang = selectedEnglishVoice.lang || 'en-US';
+                    }
+                    else {
+                        utterance.lang = 'en-US';
                     }
                     utterance.rate = 1;
                     utterance.pitch = 1;
@@ -755,7 +766,8 @@
                     console.error('Error parsing date for', item.code, e);
                     return false;
                 }
-            }); const needReviewList = document.getElementById('needReviewList');
+            });
+            const needReviewList = document.getElementById('needReviewList');
             const reviewedTodayList = document.getElementById('reviewedTodayList');
             needReviewList.innerHTML = '';
             reviewedTodayList.innerHTML = '';
