@@ -317,7 +317,9 @@
         function loadEnglishVoice() {
             const voices = speechSynthesis.getVoices();
             if (!voices || voices.length === 0) return;
-            selectedEnglishVoice = voices.find(v => v.lang.toLowerCase().startsWith('en'))
+            selectedEnglishVoice = voices.find(v => v.lang === 'en-US')
+                || voices.find(v => v.lang === 'en-GB')
+                || voices.find(v => v.lang.toLowerCase().startsWith('en'))
                 || voices.find(v => v.lang.toLowerCase().includes('english'))
                 || voices.find(v => v.name.toLowerCase().includes('english'))
                 || voices.find(v => v.lang.toLowerCase().includes('en'))
@@ -540,7 +542,7 @@
                     else {
                         utterance.lang = 'en-US';
                     }
-                    utterance.rate = 1;
+                    utterance.rate = 0.7;
                     utterance.pitch = 1;
                     utterance.onend = () => {
                         isPlaying = false;
