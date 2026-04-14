@@ -246,7 +246,7 @@
                 <div id="alwaysAnswerText" class="text-gray-700 break-words whitespace-pre-wrap hidden mt-4"></div>
             </div>
 
-            <div class="flex space-x-4 mb-6">
+            <div class="flex space-x-4 mb-6 hidden sm:flex">
                 <button id="checkBtn" type="button" disabled
                     class="bg-accent text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition duration-300 flex items-center space-x-2 shadow-md disabled:opacity-50">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -286,6 +286,14 @@
                         </path>
                     </svg>
                     Trước
+                </button>
+                <button id="mobileCheckBtn" type="button" disabled
+                    class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-4 py-2 rounded-xl hover:from-yellow-500 hover:to-yellow-600 transition duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Kiểm tra</span>
                 </button>
                 <button id="nextBtn"
                     class="bg-gradient-to-r from-blue-400 to-blue-500 text-white px-4 py-2 rounded-xl hover:from-blue-500 hover:to-blue-600 transition duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
@@ -568,9 +576,12 @@
 
         function updateCheckButtonState() {
             const checkBtn = document.getElementById('checkBtn');
+            const mobileCheckBtn = document.getElementById('mobileCheckBtn');
             const userInput = document.getElementById('userInput');
-            if (!checkBtn || !userInput) return;
-            checkBtn.disabled = userInput.value.trim().length === 0;
+            if (!checkBtn || !mobileCheckBtn || !userInput) return;
+            const isDisabled = userInput.value.trim().length === 0;
+            checkBtn.disabled = isDisabled;
+            mobileCheckBtn.disabled = isDisabled;
         }
 
         function checkAnswer() {
@@ -887,8 +898,12 @@
         document.getElementById('closeModal').addEventListener('click', hideModal);
         document.getElementById('cancelBtn').addEventListener('click', hideModal);
         document.getElementById('addForm').addEventListener('submit', addItem);
-        document.getElementById('playBtn').addEventListener('click', speak);
+        document.getElementById('playBtn').addEventListener('click', () => {
+            speak();
+            setTimeout(() => document.getElementById('userInput').focus(), 10);
+        });
         document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+        document.getElementById('mobileCheckBtn').addEventListener('click', checkAnswer);
         document.getElementById('userInput').addEventListener('input', updateCheckButtonState);
         document.getElementById('revealAnswerBtn').addEventListener('click', toggleAnswer);
         document.getElementById('backBtn').addEventListener('click', backToList);
